@@ -9,6 +9,8 @@ const AutoHeroBank = artifacts.require("./AutoHeroBank.sol");
 
 
 module.exports = async function(deployer, network, accounts) {
+  const deployConfig = require('../deploy-config').networks[network];
+
   // 测试
   if (process.env.CURRENT == 'test') {
     test();
@@ -70,6 +72,10 @@ module.exports = async function(deployer, network, accounts) {
     await autoHero.setStorage(autoHeroStorageAddr);
     await autoHero.setBank(autoHeroBankAddr);
 
+    for (let i = 0; i < deployConfig.whitelistAdmins.length; i++) {
+      await autoHero.addWhitelistAdmin(deployConfig.whitelistAdmins[i]);
+    }
+
     config['contracts']['autoHero'] = tronWeb.address.fromHex(AutoHero.address);
 
     output(network, config);
@@ -94,36 +100,37 @@ module.exports = async function(deployer, network, accounts) {
     await autoHero.setStorage(AutoHeroStorage.address);
     await autoHero.setBank(autoHeroBank.address);
 
-    await autoHeroStorage.setBurned(true);
-    await autoHeroStorage.setMiniOpened(true);
-    await autoHeroStorage.setMiniAssigned(true);
-    await autoHeroStorage.setMiniAssignBalance(5e6);
-    await autoHeroStorage.setRatioDenominator(10000);
-    await autoHeroStorage.setMiniRatio(5000, 5000);
-    await autoHeroStorage.setAssignRatio(1000, 9000);
-    await autoHeroStorage.setCommissionRatio(1000);
-    await autoHeroStorage.setInterestRatio(30);
+    await autoHeroStorage.setBurned(deployConfig.burned);
+    await autoHeroStorage.setMiniOpened(deployConfig.miniOpened);
+    await autoHeroStorage.setMiniAssigned(deployConfig.miniAssigned);
+    await autoHeroStorage.setMiniAssignBalance(deployConfig.miniAssignBalance);
+    await autoHeroStorage.setRatioDenominator(deployConfig.ratioDenominator);
+    await autoHeroStorage.setMiniRatio(deployConfig.miniLuckyRatio, deployConfig.miniTopRatio);
+    await autoHeroStorage.setAssignRatio(deployConfig.assignMiniRatio, deployConfig.assignReferrerRatio);
+    await autoHeroStorage.setCommissionRatio(deployConfig.commissionRatio);
+    await autoHeroStorage.setInterestRatio(deployConfig.interestRatio);
 
-    await autoHeroStorage.setCar(1, 1e6);
-    await autoHeroStorage.setCar(2, 2e6);
-    await autoHeroStorage.setCar(3, 4e6);
-    await autoHeroStorage.setCar(4, 8e6);
-    await autoHeroStorage.setCar(5, 16e6);
-    await autoHeroStorage.setCar(6, 32e6);
-    await autoHeroStorage.setCar(7, 64e6);
-    await autoHeroStorage.setCar(8, 128e6);
-    await autoHeroStorage.setCar(9, 256e6);
-    await autoHeroStorage.setCar(10, 512e6);
-    await autoHeroStorage.setCar(11, 1024e6);
-    await autoHeroStorage.setCar(12, 2048e6);
+    if (deployConfig.stockToken) {
+      await autoHeroStorage.setAirdropStockToken(deployConfig.stockToken);
+    }
 
-    if (network == 'shasta') {
-      const stockToken = 'THqVx9K84Zp8cHNdoKknP53MZV9wtgELXg';
-      const interestToken = 'TMWcoACjKu9wczbtKtjPnBRPqJVrowswTp';
-      await autoHeroStorage.setTokenLocked(stockToken, true);
-      await autoHeroStorage.setTokenLocked(interestToken, true);
-      await autoHeroStorage.setAirdropStockToken(stockToken);
-      await autoHeroStorage.setAirdropInterestToken(interestToken);
+    if (deployConfig.interestToken) {
+      await autoHeroStorage.setAirdropInterestToken(deployConfig.stockToken);
+    }
+
+    for (var i = 0; i < deployConfig.whitelistAdmins.length; i++) {
+      await autoHero.addWhitelistAdmin(deployConfig.whitelistAdmins[i]);
+      await autoHeroBank.addWhitelistAdmin(deployConfig.whitelistAdmins[i]);
+      await autoHeroStorage.addWhitelistAdmin(deployConfig.whitelistAdmins[i]);
+    }
+
+    for (var i = 0; i < deployConfig.tokenLocked.length; i++) {
+      await autoHeroStorage.setTokenLocked(deployConfig.tokenLocked[i], true);
+    }
+
+    for (var i = 0; i < deployConfig.cars.length; i++) {
+      var car = deployConfig.cars[i];
+      await autoHeroStorage.setCar(car.id, car.price);
     }
 
     output(network, {

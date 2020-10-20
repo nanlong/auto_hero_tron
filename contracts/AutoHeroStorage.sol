@@ -3,10 +3,11 @@ pragma solidity >=0.4.23 <0.6.0;
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/ownership/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
+import "@openzeppelin/contracts/access/roles/WhitelistAdminRole.sol";
 import "./AutoHeroStructure.sol";
 import "./library/AddressArray.sol";
 
-contract AutoHeroStorage is Ownable {
+contract AutoHeroStorage is Ownable, WhitelistAdminRole {
   using SafeMath for uint256;
   using AddressArray for AddressArray.Addresses;
 
@@ -18,7 +19,7 @@ contract AutoHeroStorage is Ownable {
     _;
   }
 
-  function setLogic(address _autoHeroLogic) public onlyOwner {
+  function setLogic(address _autoHeroLogic) public onlyWhitelistAdmin {
     autoHeroLogic = _autoHeroLogic;
   }
   // = 逻辑合约 =
@@ -30,7 +31,7 @@ contract AutoHeroStorage is Ownable {
     return config.burned;
   }
 
-  function setBurned(bool burned) public onlyLogic {
+  function setBurned(bool burned) public onlyWhitelistAdmin {
     config.burned = burned;
     emitEvent("Config", abi.encodePacked("setBurned", burned));
   }
@@ -39,7 +40,7 @@ contract AutoHeroStorage is Ownable {
     return config.miniOpened;
   }
 
-  function setMiniOpened(bool miniOpened) public onlyLogic {
+  function setMiniOpened(bool miniOpened) public onlyWhitelistAdmin {
     config.miniOpened = miniOpened;
     emitEvent("Config", abi.encodePacked("setMiniOpened", miniOpened));
   }
@@ -48,7 +49,7 @@ contract AutoHeroStorage is Ownable {
     return config.miniAssigned;
   }
 
-  function setMiniAssigned(bool miniAssigned) public onlyLogic {
+  function setMiniAssigned(bool miniAssigned) public onlyWhitelistAdmin {
     config.miniAssigned = miniAssigned;
     emitEvent("Config", abi.encodePacked("setMiniAssigned", miniAssigned));
   }
@@ -57,7 +58,7 @@ contract AutoHeroStorage is Ownable {
     return config.miniAssignBalance;
   }
 
-  function setMiniAssignBalance(uint256 miniAssignBalance) public onlyLogic {
+  function setMiniAssignBalance(uint256 miniAssignBalance) public onlyWhitelistAdmin {
     require(miniAssignBalance > 0);
     config.miniAssignBalance = miniAssignBalance;
     emitEvent("Config", abi.encodePacked("setMiniAssignBalance", miniAssignBalance));
@@ -67,7 +68,7 @@ contract AutoHeroStorage is Ownable {
     return (config.miniLuckyRatio, config.miniTopRatio, config.ratioDenominator);
   }
 
-  function setMiniRatio(uint256 miniLuckyRatio, uint256 miniTopRatio) public onlyLogic {
+  function setMiniRatio(uint256 miniLuckyRatio, uint256 miniTopRatio) public onlyWhitelistAdmin {
     require(miniLuckyRatio + miniTopRatio == config.ratioDenominator);
     config.miniLuckyRatio = miniLuckyRatio;
     config.miniTopRatio = miniTopRatio;
@@ -78,7 +79,7 @@ contract AutoHeroStorage is Ownable {
     return (config.assignMiniRatio, config.assignReferrerRatio, config.ratioDenominator);
   }
 
-  function setAssignRatio(uint256 assignMiniRatio, uint256 assignReferrerRatio) public onlyLogic {
+  function setAssignRatio(uint256 assignMiniRatio, uint256 assignReferrerRatio) public onlyWhitelistAdmin {
     require(assignMiniRatio + assignReferrerRatio == config.ratioDenominator);
     config.assignMiniRatio = assignMiniRatio;
     config.assignReferrerRatio = assignReferrerRatio;
@@ -89,7 +90,7 @@ contract AutoHeroStorage is Ownable {
     return (config.commissionRatio, config.ratioDenominator);
   }
 
-  function setCommissionRatio(uint256 commissionRatio) public onlyLogic {
+  function setCommissionRatio(uint256 commissionRatio) public onlyWhitelistAdmin {
     require(commissionRatio <= config.ratioDenominator);
     config.commissionRatio = commissionRatio;
     emitEvent("Config", abi.encodePacked("setCommissionRatio", commissionRatio));
@@ -99,7 +100,7 @@ contract AutoHeroStorage is Ownable {
     return (config.interestRatio, config.ratioDenominator);
   }
 
-  function setInterestRatio(uint256 interestRatio) public onlyLogic {
+  function setInterestRatio(uint256 interestRatio) public onlyWhitelistAdmin {
     require(interestRatio <= config.ratioDenominator);
     config.interestRatio = interestRatio;
     emitEvent("Config", abi.encodePacked("setInterestRatio", interestRatio));
@@ -109,7 +110,7 @@ contract AutoHeroStorage is Ownable {
     return config.ratioDenominator;
   }
 
-  function setRatioDenominator(uint256 ratioDenominator) public onlyLogic {
+  function setRatioDenominator(uint256 ratioDenominator) public onlyWhitelistAdmin {
     require(ratioDenominator > 0);
     config.ratioDenominator = ratioDenominator;
     emitEvent("Config", abi.encodePacked("setRatioDenominator", ratioDenominator));
@@ -119,7 +120,7 @@ contract AutoHeroStorage is Ownable {
     return config.tokenLocked[token];
   }
 
-  function setTokenLocked(address token, bool locked) public onlyLogic {
+  function setTokenLocked(address token, bool locked) public onlyWhitelistAdmin {
     config.tokenLocked[token] = locked;
     emitEvent("Config", abi.encodePacked("setTokenLocked", token, locked));
   }

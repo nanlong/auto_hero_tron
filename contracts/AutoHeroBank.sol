@@ -5,8 +5,9 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
+import "@openzeppelin/contracts/access/roles/WhitelistAdminRole.sol";
 
-contract AutoHeroBank is Ownable {
+contract AutoHeroBank is Ownable, WhitelistAdminRole {
   using SafeMath for uint256;
   using SafeERC20 for ERC20;
 
@@ -18,7 +19,7 @@ contract AutoHeroBank is Ownable {
     _;
   }
 
-  function setLogic(address _autoHeroLogic) public onlyOwner {
+  function setLogic(address _autoHeroLogic) public onlyWhitelistAdmin {
     autoHeroLogic = _autoHeroLogic;
   }
 
