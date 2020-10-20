@@ -1,0 +1,19 @@
+{
+  "name": "contract_test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "tronbox-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@openzeppelin/contracts": "^2.5.1",
+    "moment": "^2.29.1",
+    "tronweb": "^3.1.0"
+  }
+}
