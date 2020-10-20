@@ -11,6 +11,8 @@ contract AutoHeroBank is Ownable, WhitelistAdminRole {
   using SafeMath for uint256;
   using SafeERC20 for ERC20;
 
+  function() external payable {}
+
   // - 逻辑合约 -
   address public autoHeroLogic;
 
@@ -25,7 +27,7 @@ contract AutoHeroBank is Ownable, WhitelistAdminRole {
 
   uint256 public balance;
 
-  function addBalance(uint amount) public onlyLogic {
+  function addBalance(uint256 amount) public onlyLogic {
     balance = balance.add(amount);
   }
 
@@ -33,7 +35,7 @@ contract AutoHeroBank is Ownable, WhitelistAdminRole {
     if (token == address(0)) {
       require(amount <= balance);
       balance = balance.sub(amount);
-      Address.sendValue(Address.toPayable(userAddr), amount);
+      Address.toPayable(userAddr).transfer(amount);
     } else {
       require(amount <= ERC20(token).balanceOf(address(this)));
       ERC20(token).safeTransfer(userAddr, amount);

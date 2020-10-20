@@ -16,9 +16,7 @@ module.exports = {
       interestToken: null,
       tokenLocked: [],
       whitelistAdmins: [],
-      cars: [
-        {id: 1, price: 1e6},
-      ]
+      cars: []
     },
     shasta: {
       burned: true,

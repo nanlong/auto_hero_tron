@@ -62,6 +62,9 @@ module.exports = async function(deployer, network, accounts) {
 
     await deployer.deploy(AutoHero);
 
+    config['contracts']['autoHero'] = tronWeb.address.fromHex(AutoHero.address);
+    output(network, config);
+
     const autoHeroStorage = await tronWeb.contract().at(autoHeroStorageAddr);
     await autoHeroStorage.setLogic(AutoHero.address).send({feeLimit: 1e9});
 
@@ -75,10 +78,6 @@ module.exports = async function(deployer, network, accounts) {
     for (let i = 0; i < deployConfig.whitelistAdmins.length; i++) {
       await autoHero.addWhitelistAdmin(deployConfig.whitelistAdmins[i]);
     }
-
-    config['contracts']['autoHero'] = tronWeb.address.fromHex(AutoHero.address);
-
-    output(network, config);
   }
 
   async function deployed() {
@@ -89,6 +88,15 @@ module.exports = async function(deployer, network, accounts) {
     await deployer.deploy(AutoHeroStorage);
     await deployer.deploy(AutoHeroBank);
     await deployer.deploy(AutoHero);
+
+    output(network, {
+      deployTimestamp: Number(moment().format('X')) * 1000,
+      contracts: {
+        autoHero: tronWeb.address.fromHex(AutoHero.address),
+        autoHeroStorage: tronWeb.address.fromHex(AutoHeroStorage.address),
+        autoHeroBank: tronWeb.address.fromHex(AutoHeroBank.address),
+      }
+    });
 
     const autoHeroStorage = await AutoHeroStorage.deployed();
     const autoHeroBank = await AutoHeroBank.deployed();
@@ -130,16 +138,7 @@ module.exports = async function(deployer, network, accounts) {
 
     for (var i = 0; i < deployConfig.cars.length; i++) {
       var car = deployConfig.cars[i];
-      await autoHeroStorage.setCar(car.id, car.price);
+      await autoHero.setCar(car.id, car.price);
     }
-
-    output(network, {
-      deployTimestamp: Number(moment().format('X')) * 1000,
-      contracts: {
-        autoHero: tronWeb.address.fromHex(autoHero.address),
-        autoHeroStorage: tronWeb.address.fromHex(autoHeroStorage.address),
-        autoHeroBank: tronWeb.address.fromHex(autoHeroBank.address),
-      }
-    });
   }
 };

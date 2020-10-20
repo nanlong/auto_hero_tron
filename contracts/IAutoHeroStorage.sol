@@ -39,7 +39,8 @@ interface IAutoHeroStorage {
   function getFeeWithdrawnBalance(address token) external view returns (uint);
   function addFeeWithdrawnBalances(address token, uint256 amount) external;
   function subFeeWithdrawnBalances(address token, uint256 amount) external;
-  function getCar(uint256 carId) external view returns (uint price);
+  function isCarExist(uint256 carId) external view returns (bool);
+  function getCar(uint256 carId) external view returns (uint256 price);
   function setCar(uint256 carId, uint256 price) external;
   function isUserExist(address userAddr) external view returns (bool);
   function getUserId(address userAddr) external view returns (uint256);

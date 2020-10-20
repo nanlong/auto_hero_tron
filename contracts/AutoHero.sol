@@ -20,7 +20,7 @@ contract AutoHero is Ownable, WhitelistAdminRole {
   IAutoHeroBank public autoHeroBank;
 
   uint256 private salt;
-  mapping (uint => mapping (address => uint)) private topFissions;
+  mapping (uint256 => mapping (address => uint256)) private topFissions;
 
   function setStorage(address _autoHeroStorage) public onlyOwner {
     autoHeroStorageAddr = _autoHeroStorage;
@@ -32,6 +32,11 @@ contract AutoHero is Ownable, WhitelistAdminRole {
     autoHeroBankAddr = _autoHeroBank;
     autoHeroBank = IAutoHeroBank(_autoHeroBank);
     autoHeroStorage.emitEvent("Bank", abi.encodePacked("setBank", _autoHeroBank));
+  }
+
+  function setCar(uint256 carId, uint256 price) public onlyWhitelistAdmin {
+    autoHeroStorage.setCar(carId, price);
+    autoHeroStorage.addTotalCarCount(1);
   }
 
   // 设置推荐人
@@ -52,6 +57,8 @@ contract AutoHero is Ownable, WhitelistAdminRole {
   // 买车
   function buyCar(uint256 carId) public payable {
     require(carId > 0);
+    require(msg.value > 0);
+    require(autoHeroStorage.isCarExist(carId));
     require(msg.value == autoHeroStorage.getCar(carId));
     require(!autoHeroStorage.isUserCarExist(msg.sender, carId));
 
@@ -132,7 +139,7 @@ contract AutoHero is Ownable, WhitelistAdminRole {
     autoHeroStorage.addBuyCarRecord(userAddr, carId, msg.value, referrerAmount);
 
     // 通证转入到Bank合约
-    Address.sendValue(Address.toPayable(autoHeroBankAddr), amount);
+    Address.toPayable(autoHeroBankAddr).transfer(amount);
     autoHeroBank.addBalance(amount);
   }
 
@@ -288,7 +295,7 @@ contract AutoHero is Ownable, WhitelistAdminRole {
 
     for (uint256 i = 0; i < miniData.luckysCount; i++) {
       address luckyAccount = miniData.luckys[i];
-      uint luckyAccountAmount;
+      uint256 luckyAccountAmount;
 
       if (i < miniData.luckysCount - 1) {
         luckyAccountAmount = miniData.luckyAmount.div(miniData.luckysCount);
@@ -300,15 +307,15 @@ contract AutoHero is Ownable, WhitelistAdminRole {
       _issueLuckReward(miniPhase.id, luckyAccount, luckyAccountAmount);
     }
 
-    for (uint i = 0; i < miniData.topsCount; i++) {
+    for (uint256 i = 0; i < miniData.topsCount; i++) {
       address topAccount = miniData.tops[i];
       uint256 fission = _getTopFission(miniPhase.id, topAccount);
       miniData.topFissionSum = miniData.topFissionSum.add(fission);
     }
 
-    for (uint i = 0; i < miniData.topsCount; i++) {
+    for (uint256 i = 0; i < miniData.topsCount; i++) {
       address topAccount = miniData.tops[i];
-      uint topAccountAmount;
+      uint256 topAccountAmount;
 
       if (i < miniData.topsCount - 1) {
         topAccountAmount = miniData.topAmount.mul(topFissions[miniPhase.id][topAccount]).div(miniData.topFissionSum);
@@ -327,7 +334,7 @@ contract AutoHero is Ownable, WhitelistAdminRole {
   }
 
   // 发股
-  function issueStock(string memory date, address userAddr, uint amount) public onlyWhitelistAdmin {
+  function issueStock(string memory date, address userAddr, uint256 amount) public onlyWhitelistAdmin {
     AutoHeroStructure.Token memory token = _getAirdropStockToken();
     uint256 userId = autoHeroStorage.getUserId(userAddr);
     autoHeroStorage.addAirdropUserStockBalance(date, userId, token.addr, amount);

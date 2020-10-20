@@ -215,6 +215,9 @@ contract('AutoHeroStorageTest', async (accounts) => {
 
     await autoHeroStorage.setCar.call(2, 10e6);
     assert.equal((await autoHeroStorage.getCar.call(2)).price, 10e6);
+
+    assert.isTrue(await autoHeroStorage.isCarExist.call(2));
+    assert.isFalse(await autoHeroStorage.isCarExist.call(3));
   });
 
   it('addUser', async () => {

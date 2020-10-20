@@ -229,7 +229,12 @@ contract AutoHeroStorage is Ownable, WhitelistAdminRole {
   // - 汽车 -
   AutoHeroStructure.Cars private cars;
 
-  function getCar(uint256 carId) public view returns (uint price) {
+  function isCarExist(uint256 carId) public view returns (bool) {
+    AutoHeroStructure.Car storage car = cars.data[carId];
+    return car.id != 0;
+  }
+
+  function getCar(uint256 carId) public view returns (uint256 price) {
     AutoHeroStructure.Car storage car = cars.data[carId];
     return car.price;
   }
